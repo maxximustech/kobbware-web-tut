@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1 id="greetings">Hello Anthony</h1>
+    <h1 id="another">Another Element</h1>
+    <input type="text" id="name" value="Maxx"/>
+    <button type="button" id="btn">Greet</button>
+    <script type="text/javascript">
+        let btn = document.getElementById('btn');
+        let user = document.getElementById('name');
+        btn.addEventListener('click',showGreetings);
+        function showGreetings(){
+            alert('Hello '+user.value);
+        }
+    </script>
+</body>
+</html>

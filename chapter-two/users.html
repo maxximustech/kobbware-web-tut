@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <input type="text" id="username"/>
+    <input type="password" id="password"/>
+    <button type="button" id="btn">Submit</button>
+    <button type="button" id="getUser">Get Users</button>
+    <script>
+        const users = [];
+        document.getElementById('btn')
+            .addEventListener('click',function(){
+                let username = document.getElementById('username').value;
+                let password = document.getElementById('password').value;
+                users.push({
+                    name: username,
+                    password: password
+                })
+                console.log('User saved');
+                //let user = new User(username,password);
+                //user.saveUser();
+            });
+        document.getElementById('getUser')
+            .addEventListener('click',function(){
+                //console.log(User.getUsers());
+                console.log(users)
+            });
+        class User{
+            constructor(name, password){
+                this.name = name;
+                this.password = password;
+            }
+            static getUsers(){
+                return users;
+            }
+            saveUser(){
+                users.push({
+                    name: this.name,
+                    password: this.password
+                });
+                console.log('User saved');
+            }
+        }
+    </script>
+</body>
+</html>

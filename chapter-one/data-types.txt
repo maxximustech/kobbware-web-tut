@@ -1,0 +1,15 @@
+//String
+'Hello world'
+"Hello World"
+`Hello World`
+//Number
+12
+13.6
+-2^53 - 1 <> 2^53 - 1
+//BigInt
+89509485859n
+{
+ 'name': "Anthony",
+ 'age': '16'
+}
+[]
