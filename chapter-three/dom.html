@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DOM</title>
+</head>
+<body>
+    <form>
+        <input type="text" id="fullname" placeholder="Full Name"/>
+        <br>
+        <input type="password" id="password" placeholder="Password"/>
+        <br>
+        <select id="gender">
+            <option></option>
+            <option>Male</option>
+            <option>Female</option>
+        </select>
+        <br>
+        <button type="button" id="btn">Submit</button>
+    </form>
+    <table id="user-table">
+        <thead>
+            <tr>
+                <td>Name</td>
+                <td>Password</td>
+                <td>Gender</td>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <script>
+        const info = [];
+        const table = document.getElementById('user-table');
+        document.getElementById('btn').addEventListener('click',function(){
+            let fullname = document.getElementById('fullname');
+            let password = document.getElementById('password');
+            let gender = document.getElementById('gender');
+            info.push({
+                name: fullname.value,
+                password: password.value,
+                gender: gender.value
+            });
+            let tr = document.createElement('tr');
+            let td_name = document.createElement('td');
+            let td_password = document.createElement('td');
+            let td_gender = document.createElement('td');
+
+            td_name.innerHTML = fullname.value;
+            td_password.innerHTML = password.value;
+            td_gender.innerHTML = gender.value;
+
+            tr.appendChild(td_name);
+            tr.appendChild(td_password);
+            tr.appendChild(td_gender);
+
+            table.getElementsByTagName('tbody')[0].prepend(tr);
+
+            fullname.value = '';
+            password.value = '';
+            gender.value = '';
+            console.log('User saved');
+
+        });
+    </script>
+</body>
+</html>

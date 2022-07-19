@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DOM</title>
+</head>
+<body>
+<form id="form">
+    <input type="text" id="fullname" placeholder="Full Name"/>
+    <br>
+    <input type="password" id="password" placeholder="Password"/>
+    <br>
+    <select id="gender">
+        <option></option>
+        <option>Male</option>
+        <option>Female</option>
+    </select>
+    <br>
+    <button type="button" id="btn">Submit</button>
+</form>
+<table id="user-table">
+    <thead>
+    <tr>
+        <td>Name</td>
+        <td>Password</td>
+        <td>Gender</td>
+        <td>Action</td>
+    </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+<script>
+    let info = [];
+    document.getElementById('btn').addEventListener('click',function(){
+        let fullname = document.getElementById('fullname');
+        let password = document.getElementById('password');
+        let gender = document.getElementById('gender');
+        let user = new User(fullname.value, password.value, gender.value);
+        user.save();
+    });
+    class User{
+        constructor(name,pass,gender){
+            this.name = name;
+            this.pass = pass.toString();
+            this.gender = gender;
+            this.id = Math.floor(Math.random() * 1000).toString();
+        }
+        nameExists(){
+            let check = info.filter(user => {
+                return user.name.toLowerCase() === this.name.toLowerCase();
+            });
+            return check.length > 0;
+        }
+        validate(){
+            if(this.nameExists()){
+                throw new Error('Name already exists');
+            }
+            if(this.name.length < 5){
+                throw new Error('Name is less than 5 characters');
+            }
+            if(this.pass.length < 5){
+                throw new Error('Password is less than 5 characters');
+            }
+            if(this.gender !== 'Male' && this.gender !== 'Female'){
+                throw new Error('Please select a valid gender');
+            }
+            return true;
+        }
+        save(){
+            if(this.validate()){
+                info.push({
+                    name: this.name,
+                    password: this.pass,
+                    gender: this.gender
+                });
+                Util.addToTable(this.id, this.name, this.pass, this.gender);
+                Util.clearForm();
+            }
+        }
+        static delete(id){
+            info = info.filter(user=>{
+                return user.id !== id;
+            });
+        }
+    }
+
+    class Util{
+        static addToTable(id, name, pass, gender){
+            const table = document.getElementById('user-table');
+
+            let tr = document.createElement('tr');
+            let td_name = document.createElement('td');
+            let td_password = document.createElement('td');
+            let td_gender = document.createElement('td');
+            let td_delete = document.createElement('td');
+
+            td_name.innerHTML = name;
+            td_password.innerHTML = pass;
+            td_gender.innerHTML = gender;
+
+            let btn = document.createElement('button');
+            btn.textContent = 'Delete';
+            td_delete.appendChild(btn);
+
+            tr.appendChild(td_name);
+            tr.appendChild(td_password);
+            tr.appendChild(td_gender);
+            tr.appendChild(td_delete);
+
+            tr.setAttribute('id', 'user_'+id);
+
+            table.getElementsByTagName('tbody')[0].prepend(tr);
+
+            btn.addEventListener('click',function(){
+                let t = document.getElementById('user_'+id);
+                t.parentNode.removeChild(t);
+                User.delete(id);
+            });
+        }
+        static clearForm(){
+            document.getElementById("form").reset();
+        }
+    }
+</script>
+</body>
+</html>
