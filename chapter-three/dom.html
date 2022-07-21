@@ -5,7 +5,7 @@
     <title>DOM</title>
 </head>
 <body>
-    <form>
+    <form id="form">
         <input type="text" id="fullname" placeholder="Full Name"/>
         <br>
         <input type="password" id="password" placeholder="Password"/>
@@ -43,6 +43,7 @@
                 gender: gender.value
             });
             let tr = document.createElement('tr');
+
             let td_name = document.createElement('td');
             let td_password = document.createElement('td');
             let td_gender = document.createElement('td');
@@ -57,9 +58,7 @@
 
             table.getElementsByTagName('tbody')[0].prepend(tr);
 
-            fullname.value = '';
-            password.value = '';
-            gender.value = '';
+            document.getElementById('form').reset();
             console.log('User saved');
 
         });

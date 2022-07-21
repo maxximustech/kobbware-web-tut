@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DOM</title>
+</head>
+<body>
+<form id="form">
+    <input type="text" id="fullname" placeholder="Full Name"/>
+    <br>
+    <input type="password" id="password" placeholder="Password"/>
+    <br>
+    <select id="gender">
+        <option></option>
+        <option>Male</option>
+        <option>Female</option>
+    </select>
+    <br>
+    <button type="button" id="btn">Submit</button>
+</form>
+<table id="user-table">
+    <thead>
+    <tr>
+        <td>Name</td>
+        <td>Password</td>
+        <td>Gender</td>
+        <td>Action</td>
+    </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+<script>
+    let info = [];
+    document.getElementById('btn').addEventListener('click',function(){
+        let fullname = document.getElementById('fullname');
+        let password = document.getElementById('password');
+        let gender = document.getElementById('gender');
+
+        let user = new User(fullname.value, password.value, gender.value);
+        user.save();
+
+        /*
+        info.push({
+            name: fullname.value,
+            password: password.value,
+            gender: gender.value
+        });
+        let tr = document.createElement('tr');
+
+        let td_name = document.createElement('td');
+        let td_password = document.createElement('td');
+        let td_gender = document.createElement('td');
+
+        td_name.innerHTML = fullname.value;
+        td_password.innerHTML = password.value;
+        td_gender.innerHTML = gender.value;
+
+        tr.appendChild(td_name);
+        tr.appendChild(td_password);
+        tr.appendChild(td_gender);
+
+        table.getElementsByTagName('tbody')[0].prepend(tr);
+
+        document.getElementById('form').reset();
+        console.log('User saved');
+    */
+    });
+    class User{
+        constructor(name, pass, gender){
+            this.name = name;
+            this.pass = pass;
+            this.gender = gender;
+            this.id = Math.floor(Math.random() * 1000);
+        }
+        validate(){
+            if(this.name.trim() === ''){
+                throw new Error('Name cannot be empty');
+            }
+            if(this.pass.trim() === ''){
+                throw new Error('Password cannot be empty');
+            }
+            if(this.gender.trim() === ''){
+                throw new Error('Please select a gender');
+            }
+            let check = info.filter( user => {
+                return user.name.toLowerCase() === this.name.toLowerCase();
+            });
+            if(check.length > 0){
+                throw new Error('Username already exists');
+            }
+            return true;
+        }
+        save(){
+            if(this.validate()){
+                info.push({
+                    name: this.name,
+                    password: this.pass,
+                    gender: this.gender,
+                    id: this.id
+                });
+                Util.addToTable(this.id, this.name, this.pass, this.gender);
+                Util.clearForm();
+            }
+        }
+        static delete(id){
+            let user = info.filter( user => {
+                return user.id === id;
+            });
+            if(user.length <= 0){
+                throw new Error('User does not exist');
+            }
+
+            let new_info = info.filter( user => {
+                return user.id !== id;
+            });
+            info = new_info;
+        }
+    }
+    class Util{
+        static addToTable(id, name, pass, gender){
+            const table = document.getElementById('user-table');
+
+            let tr = document.createElement('tr');
+            let td_name = document.createElement('td');
+            let td_password = document.createElement('td');
+            let td_gender = document.createElement('td');
+            let td_delete = document.createElement('td');
+
+            td_name.innerHTML = name;
+            td_password.innerHTML = pass;
+            td_gender.innerHTML = gender;
+
+            tr.appendChild(td_name);
+            tr.appendChild(td_password);
+            tr.appendChild(td_gender);
+            tr.appendChild(td_delete);
+
+            tr.setAttribute('id','user_'+id);
+
+
+            let deleteBtn = document.createElement('button');
+            deleteBtn.innerHTML = 'Delete';
+            deleteBtn.addEventListener('click',()=>{
+                let toDelete = document.getElementById('user_'+id);
+                //toDelete.remove();
+                toDelete.parentNode.removeChild(toDelete);
+                User.delete(id);
+            });
+
+            td_delete.appendChild(deleteBtn);
+
+            table.getElementsByTagName('tbody')[0].prepend(tr);
+        }
+        static clearForm(){
+            document.getElementById('form').reset();
+        }
+    }
+</script>
+</body>
+</html>
