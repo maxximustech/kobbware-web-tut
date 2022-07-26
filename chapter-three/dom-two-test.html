@@ -5,7 +5,8 @@
     <title>DOM</title>
 </head>
 <body>
-<form id="form">
+<form id="form" style="display: inline-block;">
+    <h3>New User</h3>
     <input type="text" id="fullname" placeholder="Full Name"/>
     <br>
     <input type="password" id="password" placeholder="Password"/>
@@ -17,6 +18,21 @@
     </select>
     <br>
     <button type="button" id="btn">Submit</button>
+</form>
+<form id="editForm" style="display: inline;">
+    <h3>Edit User</h3>
+    <input type="text" id="edit-fullname" placeholder="Full Name"/>
+    <br>
+    <input type="password" id="edit-password" placeholder="Password"/>
+    <br>
+    <select id="edit-gender">
+        <option></option>
+        <option>Male</option>
+        <option>Female</option>
+    </select>
+    <input type="hidden" id="edit-id" value=""/>
+    <br>
+    <button type="button" id="edit-btn">Save</button>
 </form>
 <table id="user-table">
     <thead>
@@ -33,6 +49,7 @@
 </table>
 <script>
     let info = [];
+    const table = document.getElementById('user-table');
     document.getElementById('btn').addEventListener('click',function(){
         let fullname = document.getElementById('fullname');
         let password = document.getElementById('password');
@@ -40,32 +57,16 @@
 
         let user = new User(fullname.value, password.value, gender.value);
         user.save();
-
-        /*
-        info.push({
-            name: fullname.value,
-            password: password.value,
-            gender: gender.value
-        });
-        let tr = document.createElement('tr');
-
-        let td_name = document.createElement('td');
-        let td_password = document.createElement('td');
-        let td_gender = document.createElement('td');
-
-        td_name.innerHTML = fullname.value;
-        td_password.innerHTML = password.value;
-        td_gender.innerHTML = gender.value;
-
-        tr.appendChild(td_name);
-        tr.appendChild(td_password);
-        tr.appendChild(td_gender);
-
-        table.getElementsByTagName('tbody')[0].prepend(tr);
-
-        document.getElementById('form').reset();
-        console.log('User saved');
-    */
+    });
+    document.getElementById('edit-btn').addEventListener('click',() => {
+        let id = document.getElementById('edit-id').value;
+        let fullname = document.getElementById('edit-fullname').value;
+        let password = document.getElementById('edit-password').value;
+        let gender = document.getElementById('edit-gender').value;
+        User.editUser(id,fullname,password,gender);
+        Util.editUser(id);
+        document.getElementById('editForm').reset();
+        console.log(info);
     });
     class User{
         constructor(name, pass, gender){
@@ -117,11 +118,44 @@
             });
             info = new_info;
         }
+        static fetchUser(id){
+            return info.filter(user => {
+                return user.id.toString() === id.toString();
+            });
+        }
+        static editUser(id, name, pass, gender){
+            if(this.fetchUser(id).length <= 0){
+                throw new Error('User does not exist');
+            }
+            let index = info.findIndex(user => {
+                return user.id.toString() === id.toString();
+            });
+            if(index < 0){
+                throw new Error('User does not exist');
+            }
+            let check = info.filter( user => {
+                return user.name.toLowerCase() === name.toLowerCase() && user.id.toString() !== id.toString()
+            });
+            if(check.length > 0){
+                throw new Error('User already exist');
+            }
+            info[index].name = name;
+            info[index].gender = gender;
+            info[index].pass = pass;
+
+            /*
+            Same as the one above
+            info[index] = {
+                name: name,
+                pass: pass,
+                gender: gender,
+                id: id
+            };
+             */
+        }
     }
     class Util{
         static addToTable(id, name, pass, gender){
-            const table = document.getElementById('user-table');
-
             let tr = document.createElement('tr');
             let td_name = document.createElement('td');
             let td_password = document.createElement('td');
@@ -141,20 +175,40 @@
 
 
             let deleteBtn = document.createElement('button');
+            let editBtn = document.createElement('button');
             deleteBtn.innerHTML = 'Delete';
+            editBtn.innerHTML = 'Edit';
             deleteBtn.addEventListener('click',()=>{
                 let toDelete = document.getElementById('user_'+id);
                 //toDelete.remove();
                 toDelete.parentNode.removeChild(toDelete);
                 User.delete(id);
             });
+            editBtn.addEventListener('click',()=>{
+                let user = User.fetchUser(id)[0];
+                if(user.length <= 0){
+                    throw new Error('The user does not exist');
+                }
+                document.getElementById('edit-fullname').value = user.name;
+                document.getElementById('edit-password').value = user.password;
+                document.getElementById('edit-gender').value = user.gender;
+                document.getElementById('edit-id').value = user.id;
+            });
 
             td_delete.appendChild(deleteBtn);
+            td_delete.appendChild(editBtn);
 
             table.getElementsByTagName('tbody')[0].prepend(tr);
         }
         static clearForm(){
             document.getElementById('form').reset();
+        }
+        static editUser(id){
+            let tr = document.getElementById('user_'+id);
+            let user = User.fetchUser(id)[0];
+            tr.childNodes[0].innerHTML = user.name;
+            tr.childNodes[1].innerHTML = user.pass;
+            tr.childNodes[2].innerHTML = user.gender;
         }
     }
 </script>
