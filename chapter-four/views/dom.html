@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DOM</title>
+</head>
+<body>
+<form id="form" style="display: inline-block;">
+    <h3>New User</h3>
+    <input type="text" id="fullname" placeholder="Full Name"/>
+    <br>
+    <input type="password" id="password" placeholder="Password"/>
+    <br>
+    <select id="gender">
+        <option></option>
+        <option>Male</option>
+        <option>Female</option>
+    </select>
+    <br>
+    <button type="button" id="btn">Submit</button>
+</form>
+<form id="editForm" style="display: inline;">
+    <h3>Edit User</h3>
+    <input type="text" id="edit-fullname" placeholder="Full Name"/>
+    <br>
+    <input type="password" id="edit-password" placeholder="Password"/>
+    <br>
+    <select id="edit-gender">
+        <option></option>
+        <option>Male</option>
+        <option>Female</option>
+    </select>
+    <input type="hidden" id="edit-id" value=""/>
+    <br>
+    <button type="button" id="edit-btn">Save</button>
+</form>
+<table id="user-table">
+    <thead>
+    <tr>
+        <td>Name</td>
+        <td>Password</td>
+        <td>Gender</td>
+        <td>Action</td>
+    </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+<script>
+    let info = [];
+    const table = document.getElementById('user-table');
+    document.getElementById('btn').addEventListener('click',function(){
+        let fullname = document.getElementById('fullname');
+        let password = document.getElementById('password');
+        let gender = document.getElementById('gender');
+
+        let user = new User(fullname.value, password.value, gender.value);
+        user.save();
+    });
+    document.getElementById('edit-btn').addEventListener('click',() => {
+        let id = document.getElementById('edit-id').value;
+        let fullname = document.getElementById('edit-fullname').value;
+        let password = document.getElementById('edit-password').value;
+        let gender = document.getElementById('edit-gender').value;
+        User.editUser(id,fullname,password,gender);
+        Util.editUser(id);
+        document.getElementById('editForm').reset();
+        console.log(info);
+    });
+    class User{
+        constructor(name, pass, gender){
+            this.name = name;
+            this.pass = pass;
+            this.gender = gender;
+            this.id = Math.floor(Math.random() * 1000);
+        }
+        validate(){
+            if(this.name.trim() === ''){
+                throw new Error('Name cannot be empty');
+            }
+            if(this.pass.trim() === ''){
+                throw new Error('Password cannot be empty');
+            }
+            if(this.gender.trim() === ''){
+                throw new Error('Please select a gender');
+            }
+            let check = info.filter( user => {
+                return user.name.toLowerCase() === this.name.toLowerCase();
+            });
+            if(check.length > 0){
+                throw new Error('Username already exists');
+            }
+            return true;
+        }
+        save(){
+            if(this.validate()){
+                info.push({
+                    name: this.name,
+                    password: this.pass,
+                    gender: this.gender,
+                    id: this.id
+                });
+                Util.addToTable(this.id, this.name, this.pass, this.gender);
+                Util.clearForm();
+            }
+        }
+        static delete(id){
+            let user = info.filter( user => {
+                return user.id === id;
+            });
+            if(user.length <= 0){
+                throw new Error('User does not exist');
+            }
+
+            let new_info = info.filter( user => {
+                return user.id !== id;
+            });
+            info = new_info;
+        }
+        static fetchUser(id){
+            return info.filter(user => {
+                return user.id.toString() === id.toString();
+            });
+        }
+        static editUser(id, name, pass, gender){
+            if(this.fetchUser(id).length <= 0){
+                throw new Error('User does not exist');
+            }
+            let index = info.findIndex(user => {
+                return user.id.toString() === id.toString();
+            });
+            if(index < 0){
+                throw new Error('User does not exist');
+            }
+            let check = info.filter( user => {
+                return user.name.toLowerCase() === name.toLowerCase() && user.id.toString() !== id.toString()
+            });
+            if(check.length > 0){
+                throw new Error('User already exist');
+            }
+            info[index].name = name;
+            info[index].gender = gender;
+            info[index].pass = pass;
+
+            /*
+            Same as the one above
+            info[index] = {
+                name: name,
+                pass: pass,
+                gender: gender,
+                id: id
+            };
+             */
+        }
+    }
+    class Util{
+        static addToTable(id, name, pass, gender){
+            let tr = document.createElement('tr');
+            let td_name = document.createElement('td');
+            let td_password = document.createElement('td');
+            let td_gender = document.createElement('td');
+            let td_delete = document.createElement('td');
+
+            td_name.innerHTML = name;
+            td_password.innerHTML = pass;
+            td_gender.innerHTML = gender;
+
+            tr.appendChild(td_name);
+            tr.appendChild(td_password);
+            tr.appendChild(td_gender);
+            tr.appendChild(td_delete);
+
+            tr.setAttribute('id','user_'+id);
+
+
+            let deleteBtn = document.createElement('button');
+            let editBtn = document.createElement('button');
+            deleteBtn.innerHTML = 'Delete';
+            editBtn.innerHTML = 'Edit';
+            deleteBtn.addEventListener('click',()=>{
+                let toDelete = document.getElementById('user_'+id);
+                //toDelete.remove();
+                toDelete.parentNode.removeChild(toDelete);
+                User.delete(id);
+            });
+            editBtn.addEventListener('click',()=>{
+                let user = User.fetchUser(id)[0];
+                if(user.length <= 0){
+                    throw new Error('The user does not exist');
+                }
+                document.getElementById('edit-fullname').value = user.name;
+                document.getElementById('edit-password').value = user.password;
+                document.getElementById('edit-gender').value = user.gender;
+                document.getElementById('edit-id').value = user.id;
+            });
+
+            td_delete.appendChild(deleteBtn);
+            td_delete.appendChild(editBtn);
+
+            table.getElementsByTagName('tbody')[0].prepend(tr);
+        }
+        static clearForm(){
+            document.getElementById('form').reset();
+        }
+        static editUser(id){
+            let tr = document.getElementById('user_'+id);
+            let user = User.fetchUser(id)[0];
+            tr.childNodes[0].innerHTML = user.name;
+            tr.childNodes[1].innerHTML = user.pass;
+            tr.childNodes[2].innerHTML = user.gender;
+        }
+    }
+</script>
+</body>
+</html>
