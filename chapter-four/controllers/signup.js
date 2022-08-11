@@ -1,26 +1,18 @@
 const path = require("path");
 const fs = require("fs");
+const User = require('../models/user');
 
 exports.getSignUp = (req, res)=>{
     res.sendFile(path.join(__dirname,'../views','signup.html'));
 }
 
 exports.postSignUp = (req, res)=>{
-    let user = req.body;
-    let users = fs.readFileSync(path.join(__dirname,'../','data.json'));
-    let parsedUsers = JSON.parse(users);
-    let check = parsedUsers.filter(u => {
-        return u.username.toLowerCase() === user.username.toLowerCase();
-    });
-    if(check.length > 0){
-        console.log('Username already exist');
+    try{
+        let user = new User(req.body.username, req.body.password);
+        user.save();
+        res.redirect('/login');
+    }catch(err){
+        console.log(err);
         res.redirect('/signup');
-        return;
     }
-    parsedUsers.push({
-        username: user.username,
-        pass: user.password
-    });
-    fs.writeFileSync(path.join(__dirname,'../','data.json'),JSON.stringify(parsedUsers));
-    res.redirect('/login');
 }
