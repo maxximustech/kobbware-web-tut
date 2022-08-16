@@ -24,6 +24,7 @@ module.exports = class User{
             password:this.pass
         });
         fs.writeFileSync(path.join(__dirname,'../','data.json'),JSON.stringify(existingUsers));
+        return true;
     }
     static fetchAll(){
         return readFile();

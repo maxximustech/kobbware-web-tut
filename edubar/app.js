@@ -7,12 +7,15 @@ const fs = require('fs');
 const app = express();
 
 const User = require('./models/user');
+const authRoutes = require('./routes/auth');
 
 app.set('view engine', 'ejs');
 app.set('views', './views');
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(express.json())
 
 app.use(express.static('public'));
+
+app.use(authRoutes);
 
 app.get('/', (req,res)=>{
     res.render('index',{
